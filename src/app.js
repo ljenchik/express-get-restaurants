@@ -8,4 +8,10 @@ app.get("/restaurants", async (req, res) => {
     res.json(restaurants);
 });
 
+app.get("/restaurants/:id", async (req, res) => {
+    const id = req.params.id;
+    const foundRestaurant = await Restaurant.findByPk(id);
+    res.json(foundRestaurant);
+});
+
 module.exports = app;
