@@ -14,4 +14,30 @@ app.get("/restaurants/:id", async (req, res) => {
     res.json(foundRestaurant);
 });
 
+app.use(express.json());
+app.use(express.urlencoded());
+
+app.post("/restaurants/create", async (req, res) => {
+    await Restaurant.create({
+        name: req.body.name,
+        location: req.body.location,
+        cuisine: req.body.cuisine,
+    });
+    res.send();
+});
+
+app.put("/restaurants/:id", async (req, res) => {
+    const id = req.params.id;
+    const foundRestaurant = await Restaurant.findByPk(id);
+    await foundRestaurant.update({ name: req.body.name });
+    res.send();
+});
+
+app.delete("/restaurants/:id", async (req, res) => {
+    const id = req.params.id;
+    const foundRestaurant = await Restaurant.findByPk(id);
+    await foundRestaurant.destroy();
+    res.send();
+});
+
 module.exports = app;
