@@ -1,7 +1,8 @@
 const express = require("express");
 const app = express();
-const Restaurant = require("../models/index");
-const db = require("../db/connection");
+const { Restaurant, Menu, Item } = require("../models/index");
+app.use(express.json());
+app.use(express.urlencoded());
 
 app.get("/restaurants", async (req, res) => {
     const restaurants = await Restaurant.findAll();
@@ -11,33 +12,45 @@ app.get("/restaurants", async (req, res) => {
 app.get("/restaurants/:id", async (req, res) => {
     const id = req.params.id;
     const foundRestaurant = await Restaurant.findByPk(id);
-    res.json(foundRestaurant);
+    if (!foundRestaurant) {
+        res.status(404).end();
+    } else {
+        res.json(foundRestaurant);
+    }
 });
 
-app.use(express.json());
-app.use(express.urlencoded());
-
-app.post("/restaurants/create", async (req, res) => {
+app.post("/restaurants", async (req, res) => {
     await Restaurant.create({
         name: req.body.name,
         location: req.body.location,
         cuisine: req.body.cuisine,
     });
-    res.send();
+    const allRestaurants = await Restaurant.findAll();
+    res.json(allRestaurants);
 });
 
 app.put("/restaurants/:id", async (req, res) => {
     const id = req.params.id;
     const foundRestaurant = await Restaurant.findByPk(id);
-    await foundRestaurant.update({ name: req.body.name });
-    res.send();
+    if (!foundRestaurant) {
+        res.status(404).end();
+    } else {
+        await foundRestaurant.update(req.body);
+        const allRestaurants = await Restaurant.findAll();
+        res.json(allRestaurants);
+    }
 });
 
 app.delete("/restaurants/:id", async (req, res) => {
     const id = req.params.id;
     const foundRestaurant = await Restaurant.findByPk(id);
-    await foundRestaurant.destroy();
-    res.send();
+    if (!foundRestaurant) {
+        res.status(404).end();
+    } else {
+        await foundRestaurant.destroy();
+        const allRestaurants = await Restaurant.findAll();
+        res.json(allRestaurants);
+    }
 });
 
 module.exports = app;
