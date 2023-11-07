@@ -118,4 +118,42 @@ describe("tests endpoints", () => {
         const response = await request(app).delete(`/restaurants/${id}`);
         expect(response.statusCode).toEqual(404);
     });
+
+    test("tests associations between restaurant, menus and items", async () => {
+        const restaurant = await Restaurant.findByPk(2);
+        const menu1 = await Menu.findByPk(1);
+        const menu2 = await Menu.findByPk(2);
+        const item1 = await Item.findByPk(1);
+        const item2 = await Item.findByPk(2);
+        await restaurant.addMenus([menu1, menu2]);
+        await menu1.addItems([item1, item2]);
+        const restaurantWithMenusItems = await Restaurant.findByPk(2, {
+            include: Menu,
+            include: [
+                {
+                    model: Menu,
+                    include: [
+                        {
+                            model: Item,
+                        },
+                    ],
+                },
+            ],
+        });
+        console.log(JSON.stringify(restaurantWithMenusItems, null, 2));
+        const restaurantsWithMenusItems = await Restaurant.findAll({
+            include: Menu,
+            include: [
+                {
+                    model: Menu,
+                    include: [
+                        {
+                            model: Item,
+                        },
+                    ],
+                },
+            ],
+        });
+        console.log(JSON.stringify(restaurantsWithMenusItems, null, 2));
+    });
 });
