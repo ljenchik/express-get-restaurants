@@ -7,6 +7,16 @@ app.use(express.urlencoded());
 app.get("/restaurants", async (req, res) => {
     const restaurants = await Restaurant.findAll({
         include: Menu,
+        include: [
+            {
+                model: Menu,
+                include: [
+                    {
+                        model: Item,
+                    },
+                ],
+            },
+        ],
     });
     res.json(restaurants);
 });
