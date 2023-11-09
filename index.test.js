@@ -157,3 +157,49 @@ describe("tests endpoints", () => {
         console.log(JSON.stringify(restaurantsWithMenusItems, null, 2));
     });
 });
+
+describe("Tests that an errors array is returned when the name, location, and/or cuisine fields are empty", () => {
+    beforeAll(async () => {
+        await syncSeed();
+        const restaurants = await Restaurant.findAll();
+        quantity = restaurants.length;
+    });
+    test("tests that error array is returned when the restaurant name is missing when posting", async () => {
+        const response = await request(app).post("/restaurants").send({
+            location: "Kyiv",
+            cuisine: "Ukrainian",
+        });
+        expect(JSON.parse(response.text)).toEqual(
+            expect.objectContaining({
+                errors: [
+                    {
+                        type: "field",
+                        msg: "Invalid value",
+                        path: "name",
+                        location: "body",
+                    },
+                ],
+            })
+        );
+        expect(JSON.parse(response.text).errors).toEqual(
+            expect.arrayContaining([
+                {
+                    type: "field",
+                    msg: "Invalid value",
+                    path: "name",
+                    location: "body",
+                },
+            ])
+        );
+        expect(response.body).toHaveProperty("errors");
+        expect(Array.isArray(response.body.errors)).toBe(true);
+    });
+
+    test("tests that error array is returned when the restaurant name is missing when posting", async () => {
+        const response = await request(app).post("/restaurants").send({
+            name: "Kyiv",
+        });
+        expect(response.body).toHaveProperty("errors");
+        expect(Array.isArray(response.body.errors)).toBe(true);
+    });
+});

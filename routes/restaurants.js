@@ -55,7 +55,7 @@ restaurantsRouter.post(
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            res.send({ error: errors.array() });
+            res.json({ errors: errors.array() });
         } else {
             await Restaurant.create({
                 name: req.body.name,
@@ -67,4 +67,28 @@ restaurantsRouter.post(
         }
     }
 );
+
+restaurantsRouter.put("/:id", async (req, res) => {
+    const id = req.params.id;
+    const foundRestaurant = await Restaurant.findByPk(id);
+    if (!foundRestaurant) {
+        res.status(404).end();
+    } else {
+        await foundRestaurant.update(req.body);
+        const allRestaurants = await Restaurant.findAll();
+        res.json(allRestaurants);
+    }
+});
+
+restaurantsRouter.delete("/:id", async (req, res) => {
+    const id = req.params.id;
+    const foundRestaurant = await Restaurant.findByPk(id);
+    if (!foundRestaurant) {
+        res.status(404).end();
+    } else {
+        await foundRestaurant.destroy();
+        const allRestaurants = await Restaurant.findAll();
+        res.json(allRestaurants);
+    }
+});
 module.exports = restaurantsRouter;
